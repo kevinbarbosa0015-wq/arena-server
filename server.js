@@ -187,12 +187,41 @@ app.post('/webhook', async (req, res) => {
       seenMessages.clear();
     }
 
-    if (type === 'chat.message.sent') {
-      const event = req.body;
-      const content = event.content || event.message?.content || '';
-      const username = event.sender?.username || 'usuário';
-      console.log('CHAT:', username, content);
+    
+if (type === 'chat.message.sent') {
+  const event = req.body;
+  const content = event.content || event.message?.content || '';
+  const username = event.sender?.username || 'usuário';
+
+  console.log('CHAT:', username, content);
+
+  const command = content.trim().toLowerCase().split(/\s+/)[0];
+
+  const actions = {
+    '!lutar': { type: 'attack' },
+    '!fogo': { type: 'vote', element: 'fire' },
+    '!raio': { type: 'vote', element: 'lightning' },
+    '!gelo': { type: 'vote', element: 'ice' },
+    '!natureza': { type: 'vote', element: 'nature' }
+  };
+
+  const action = actions[command];
+
+  if (action) {
+    gameEvents.push({
+      id: nextEventId++,
+      ...action,
+      username
+    });
+
+    if (gameEvents.length > 500) {
+      gameEvents.shift();
     }
+
+    console.log('COMANDO:', username, command);
+  }
+}
+
 
     res.status(200).json({ received: true });
   } catch (err) {

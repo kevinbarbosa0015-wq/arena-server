@@ -19,7 +19,18 @@ let accessToken = null;
 let refreshToken = null;
 let publicKey = null;
 const seenMessages = new Set();
+const gameEvents = [];
+let nextEventId = 1;
 
+app.get('/events', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  const since = Number(req.query.since || 0);
+
+  res.json({
+    events: gameEvents.filter(event => event.id > since)
+  });
+});
 app.get('/', (req, res) => {
   res.send('Arena Evolution LIVE: servidor funcionando!');
 });
